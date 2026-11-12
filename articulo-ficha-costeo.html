@@ -1,0 +1,395 @@
+<!doctype html>
+<html lang="es-CL">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Sigue un almuerzo desde el costo de los ingredientes hasta el margen de venta en cinco pasos interactivos.">
+<title>Cómo armar tu primera ficha de costeo sin ser contador · CS Consultoría</title>
+<link rel="icon" href="logo-cs.png">
+<link rel="stylesheet" href="estilo.css">
+<link rel="stylesheet" href="guia.css">
+<script src="guia.js" defer></script>
+<script src="solvi.js" defer></script>
+</head>
+<body>
+<a class="skip" href="#inicio">Saltar al contenido</a>
+<header class="wrap top">
+<a class="brand" href="index.html"><img src="logo-cs.png" alt="" width="48" height="48"><span>CS Consultoría<small>Gestión gastronómica</small></span></a>
+<a href="index.html#blog">Volver al blog</a>
+</header>
+<main class="wrap guide-wrap" id="inicio">
+<article id="guia-costeo">
+<header>
+<h1>Cómo armar tu primera ficha de costeo sin ser contador</h1>
+<p>En esta guía seguimos un almuerzo de pollo al horno con arroz y ensalada chilena. Partimos por lo que cuestan los ingredientes, sumamos el envase, el trabajo y los gastos compartidos, y probamos distintos precios para ver cuánto queda por plato.</p>
+<p>Recorre los cinco pasos a tu ritmo. Toca cada opción y verás cómo cambian los montos.</p>
+</header>
+<div class="nav nav-pills" role="tablist" aria-label="Pasos de la guía">
+<button class="nav-link active" id="costeo-tab-1" type="button" role="tab" aria-selected="true" aria-controls="costeo-panel-1">1. La venta</button>
+<button tabindex="-1" class="nav-link" id="costeo-tab-2" type="button" role="tab" aria-selected="false" aria-controls="costeo-panel-2">2. Los ingredientes</button>
+<button tabindex="-1" class="nav-link" id="costeo-tab-3" type="button" role="tab" aria-selected="false" aria-controls="costeo-panel-3">3. Los otros costos</button>
+<button tabindex="-1" class="nav-link" id="costeo-tab-4" type="button" role="tab" aria-selected="false" aria-controls="costeo-panel-4">4. El precio</button>
+<button tabindex="-1" class="nav-link" id="costeo-tab-5" type="button" role="tab" aria-selected="false" aria-controls="costeo-panel-5">5. El margen</button>
+<button tabindex="-1" class="nav-link" id="costeo-tab-6" type="button" role="tab" aria-selected="false" aria-controls="costeo-panel-6">Conclusión</button>
+</div>
+<div class="costeo-panel" id="costeo-panel-1" role="tabpanel" aria-labelledby="costeo-tab-1">
+<p>Sigue los $5.000 desde que el cliente paga hasta que quedan cubiertos los costos. Este primer ejercicio usa números redondos para entender la idea.</p>
+<section id="costos-almuerzo">
+  <h2>¿A dónde van los $5.000 de un almuerzo?</h2>
+  <div class="viz-controls" role="group" aria-label="Momentos de la venta">
+    <button class="btn" type="button" aria-pressed="true" data-step="0">Recibo el pago</button>
+    <button class="btn" type="button" aria-pressed="false" data-step="1">Pago los ingredientes</button>
+    <button class="btn" type="button" aria-pressed="false" data-step="2">Cubro los demás costos</button>
+  </div>
+  <div class="costos-barra" aria-hidden="true">
+    <span data-ingredientes></span><span data-otros></span><span data-saldo></span>
+  </div>
+  <div class="costos-estado" aria-live="polite" aria-atomic="true">
+    <div class="viz-row"><strong class="tabular-nums" data-monto>$5.000</strong><span data-concepto>Precio de venta</span></div>
+    <p class="text-small text-muted" data-detalle>El cliente paga el almuerzo.</p>
+  </div>
+</section>
+<style>
+#costos-almuerzo .costos-barra {
+  display: flex;
+  height: 30px;
+  overflow: hidden;
+  border-radius: 7px;
+  margin: 16px 0 12px;
+}
+#costos-almuerzo .costos-barra span {
+  transition: width 240ms ease;
+}
+#costos-almuerzo [data-ingredientes] { width: 0; background: var(--viz-series-2); }
+#costos-almuerzo [data-otros] { width: 0; background: var(--viz-series-3); }
+#costos-almuerzo [data-saldo] { width: 100%; background: var(--viz-series-1); }
+#costos-almuerzo [data-monto] { font-weight: 500; }
+#costos-almuerzo [data-detalle] { margin: 4px 0 0; }
+@media (prefers-reduced-motion: reduce) {
+  #costos-almuerzo .costos-barra span { transition: none; }
+}
+</style>
+<script>
+(() => {
+  const root = document.getElementById('costos-almuerzo');
+  const buttons = [...root.querySelectorAll('button[data-step]')];
+  const segments = ['ingredientes', 'otros', 'saldo'].map(key => root.querySelector('[data-' + key + ']'));
+  const amount = root.querySelector('[data-monto]');
+  const concept = root.querySelector('[data-concepto]');
+  const detail = root.querySelector('[data-detalle]');
+  const steps = [
+    { widths: [0, 0, 100], amount: '$5.000', concept: 'Precio de venta', detail: 'El cliente paga el almuerzo.' },
+    { widths: [40, 0, 60], amount: '$3.000', concept: 'Beneficio bruto', detail: 'Ya descontaste $2.000 por el pollo, el arroz, la ensalada y los condimentos.' },
+    { widths: [40, 46, 14], amount: '$700', concept: 'Beneficio neto', detail: 'Descontaste además $2.300 por el envase, el trabajo y la parte de gastos como el gas y el arriendo.' }
+  ];
+  buttons.forEach((button, index) => {
+    button.addEventListener('click', () => {
+      const step = steps[index];
+      buttons.forEach(item => item.setAttribute('aria-pressed', String(item === button)));
+      segments.forEach((segment, i) => { segment.style.width = step.widths[i] + '%'; });
+      amount.textContent = step.amount;
+      concept.textContent = step.concept;
+      detail.textContent = step.detail;
+    });
+  });
+})();
+</script>
+
+</div>
+<div class="costeo-panel" id="costeo-panel-2" role="tabpanel" aria-labelledby="costeo-tab-2" hidden>
+<p>Toca cada parte del plato para armar la ficha de una porción. Los precios de compra son referencias publicadas en Chile y las cantidades son estimadas.</p>
+<section id="ficha-plato">
+  <h2>¿Cuánto cuesta preparar este almuerzo?</h2>
+  <p class="text-small text-muted">Pollo al horno con arroz y ensalada chilena · Precios publicados en Chile · Porciones estimadas</p>
+  <div class="plato-layout">
+    <div class="plato" role="group" aria-label="Toca cada parte del plato">
+      <button type="button" class="btn" data-item="0" aria-pressed="false"><span aria-hidden="true">🍗</span> Pollo</button>
+      <button type="button" class="btn" data-item="1" aria-pressed="false"><span aria-hidden="true">🍚</span> Arroz</button>
+      <button type="button" class="btn" data-item="2" aria-pressed="false"><span aria-hidden="true">🥗</span> Ensalada</button>
+      <button type="button" class="btn" data-item="3" aria-pressed="false"><span aria-hidden="true">🧂</span> Aliños</button>
+    </div>
+    <div aria-live="polite" aria-atomic="true">
+      <h3>Ficha de una porción</h3>
+      <table class="table table-sm">
+        <thead><tr><th scope="col">Parte del plato</th><th scope="col" class="text-end">Costo</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Pollo al horno</th><td class="text-end" data-cost>—</td></tr>
+          <tr><th scope="row">Arroz</th><td class="text-end" data-cost>—</td></tr>
+          <tr><th scope="row">Ensalada chilena</th><td class="text-end" data-cost>—</td></tr>
+          <tr><th scope="row">Aceite y sal</th><td class="text-end" data-cost>—</td></tr>
+        </tbody>
+        <tfoot><tr><th scope="row" data-total-label>Subtotal revelado</th><td class="text-end tabular-nums" data-total>$0</td></tr></tfoot>
+      </table>
+      <p data-note>Toca una parte del plato para descubrir su costo.</p>
+      <div data-packaging hidden>
+        <button type="button" class="btn" data-envelope aria-pressed="false">Ver costo del envase</button>
+        <p data-takeaway hidden>Envase <strong>$280</strong> · Ingredientes y envase <strong data-with-packaging></strong></p>
+      </div>
+    </div>
+  </div>
+  <details class="price-sources">
+    <summary>Ver referencias de precios</summary>
+    <p>Precios de compra usados en el ejercicio. Pueden variar según el local y la fecha.</p>
+    <a href="https://super.lider.cl/v/trutro-entero-pollo">Pollo</a> ·
+    <a href="https://super.lider.cl/v/arroz-grado-1">Arroz</a> ·
+    <a href="https://super.lider.cl/ip/verduras/00200024000000">Tomate</a> ·
+    <a href="https://super.lider.cl/ip/verduras/00780460020020">Cebolla</a> ·
+    <a href="https://super.lider.cl/ip/aceites-y-aderezos/00842324301733">Aceite</a> ·
+    <a href="https://super.lider.cl/ip/aceites-y-aderezos/00780465163001">Sal</a> ·
+    <a href="https://www.lider.cl/ip/menaje-cocina/envase-bowl-kraft-con-tapa-pet-1000ml-50-unidades-/00083489300233">Envase</a>
+  </details>
+</section>
+<style>
+#ficha-plato .plato-layout { display:grid; grid-template-columns:minmax(0, 1fr) minmax(0, 1.2fr); align-items:center; gap:24px; }
+#ficha-plato .plato { width:min(100%, 288px); margin-inline:auto; aspect-ratio:1; display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); align-content:center; gap:8px; padding:clamp(22px, 5vw, 40px); border-radius:50%; background:radial-gradient(circle, var(--background) 61%, var(--muted) 62%); box-sizing:border-box; }
+#ficha-plato .plato button { justify-self:stretch; }
+#ficha-plato .plato button span { display:block; }
+#ficha-plato [data-cost], #ficha-plato [data-total] { white-space:nowrap; }
+@media(max-width:570px) { #ficha-plato .plato-layout { grid-template-columns:minmax(0,1fr); gap:16px; } }
+</style>
+<script>
+(() => {
+  const root = document.getElementById('ficha-plato');
+  const buttons = [...root.querySelectorAll('[data-item]')];
+  const costs = [...root.querySelectorAll('[data-cost]')];
+  const total = root.querySelector('[data-total]');
+  const totalLabel = root.querySelector('[data-total-label]');
+  const note = root.querySelector('[data-note]');
+  const packaging = root.querySelector('[data-packaging]');
+  const envelope = root.querySelector('[data-envelope]');
+  const takeaway = root.querySelector('[data-takeaway]');
+  const withPackaging = root.querySelector('[data-with-packaging]');
+  const pesos = new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP' });
+  const ingredients = [
+    { cost: 3590 / 4, note: 'La bandeja de cuatro trutros cuesta $3.590. Servimos una presa por plato.' },
+    { cost: 1890 * 60 / 1000, note: 'El kilo de arroz cuesta $1.890. Para esta porción usamos 60 g de arroz crudo.' },
+    { cost: (2290 * 100 + 1690 * 30) / 1000, note: 'Usamos 100 g de tomate a $2.290/kg y 30 g de cebolla a $1.690/kg. Los pesamos antes de limpiar para incluir lo que se descarta.' },
+    { cost: (2190 * 10 + 790 * 2) / 1000, note: 'Para una porción contamos 10 ml de aceite a $2.190 por litro y 2 g de sal a $790 por kilo.' }
+  ];
+  const packagingCost = 13990 / 50;
+  const ingredientTotal = ingredients.reduce((sum, item) => sum + item.cost, 0);
+  withPackaging.textContent = pesos.format(ingredientTotal + packagingCost);
+  const revealed = new Set();
+  buttons.forEach((button, index) => {
+    button.addEventListener('click', () => {
+      revealed.add(index);
+      costs[index].textContent = pesos.format(ingredients[index].cost);
+      buttons.forEach(item => item.setAttribute('aria-pressed', String(item === button)));
+      const subtotal = ingredients.reduce((sum, ingredient, i) => sum + (revealed.has(i) ? ingredient.cost : 0), 0);
+      total.textContent = pesos.format(subtotal);
+      const complete = revealed.size === ingredients.length;
+      totalLabel.textContent = complete ? 'Ingredientes por porción' : 'Subtotal revelado';
+      packaging.hidden = !complete;
+      note.textContent = ingredients[index].note;
+    });
+  });
+  envelope.addEventListener('click', () => {
+    takeaway.hidden = !takeaway.hidden;
+    envelope.setAttribute('aria-pressed', String(!takeaway.hidden));
+  });
+})();
+</script>
+
+</div>
+<div class="costeo-panel" id="costeo-panel-3" role="tabpanel" aria-labelledby="costeo-tab-3" hidden>
+<p>Con el costo de ingredientes y envase ya anotado, suma el tiempo de trabajo y la parte del gas y el arriendo que corresponde a cada almuerzo.</p>
+<section id="del-plato-al-precio">
+  <h2>De los $5.000 que cobras, ¿cuánto te queda?</h2>
+  <p class="text-small text-muted">Almuerzo para llevar · Trabajo y gastos estimados para el ejemplo</p>
+  <div class="viz-controls" role="group" aria-label="Costos acumulados por porción">
+    <button class="btn" type="button" data-step="0" aria-pressed="true">Ingredientes y envase</button>
+    <button class="btn" type="button" data-step="1" aria-pressed="false">+ Trabajo</button>
+    <button class="btn" type="button" data-step="2" aria-pressed="false">+ Gas y arriendo</button>
+  </div>
+  <div class="reparto" aria-hidden="true"><span data-used></span><span data-left></span></div>
+  <div aria-live="polite" aria-atomic="true">
+    <div class="viz-row resumen">
+      <span><i class="costo" aria-hidden="true"></i> Costos incluidos <strong data-cost>$1.594</strong></span>
+      <span><i class="saldo" aria-hidden="true"></i> Queda de la venta <strong data-remaining>$3.406</strong></span>
+    </div>
+    <p class="text-small" data-detail>Ingredientes $1.314 · Envase $280</p>
+  </div>
+</section>
+<style>
+#del-plato-al-precio .reparto { display:flex; height:26px; border-radius:6px; overflow:hidden; margin:16px 0 10px; }
+#del-plato-al-precio .reparto span { transition:width 240ms ease; }
+#del-plato-al-precio [data-used] { width:31.88%; background:var(--viz-series-2); }
+#del-plato-al-precio [data-left] { width:68.12%; background:var(--viz-series-1); }
+#del-plato-al-precio .resumen { gap:8px 20px; justify-content:flex-start; }
+#del-plato-al-precio .resumen i { display:inline-block; width:10px; height:10px; border-radius:50%; }
+#del-plato-al-precio .costo { background:var(--viz-series-2); }
+#del-plato-al-precio .saldo { background:var(--viz-series-1); }
+#del-plato-al-precio strong { font-weight:500; }
+@media(prefers-reduced-motion:reduce) { #del-plato-al-precio .reparto span { transition:none; } }
+</style>
+<script>
+(() => {
+  const root = document.getElementById('del-plato-al-precio');
+  const buttons = [...root.querySelectorAll('[data-step]')];
+  const used = root.querySelector('[data-used]');
+  const left = root.querySelector('[data-left]');
+  const cost = root.querySelector('[data-cost]');
+  const remaining = root.querySelector('[data-remaining]');
+  const detail = root.querySelector('[data-detail]');
+  const price = 5000;
+  const pesos = new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP' });
+  const steps = [
+    { cost: 1594, detail: 'Ingredientes $1.314 · Envase $280' },
+    { cost: 1594 + 1000, detail: 'Trabajo: una hora valorizada en $5.000, repartida entre 5 almuerzos, suma $1.000 por porción.' },
+    { cost: 1594 + 1000 + 200 + 500, detail: 'Gas: $1.000 para 5 almuerzos ($200 cada uno). Arriendo: $100.000 al mes entre 200 almuerzos ($500 cada uno).' }
+  ];
+  buttons.forEach((button, index) => {
+    button.addEventListener('click', () => {
+      const step = steps[index];
+      const balance = price - step.cost;
+      used.style.width = (step.cost / price * 100) + '%';
+      left.style.width = (balance / price * 100) + '%';
+      cost.textContent = pesos.format(step.cost);
+      remaining.textContent = pesos.format(balance);
+      detail.textContent = step.detail;
+      buttons.forEach(item => item.setAttribute('aria-pressed', String(item === button)));
+    });
+  });
+})();
+</script>
+
+</div>
+<div class="costeo-panel" id="costeo-panel-4" role="tabpanel" aria-labelledby="costeo-tab-4" hidden>
+<p>Prueba tres precios de venta para ver si alcanzan a cubrir los costos incluidos en la ficha.</p>
+<section id="prueba-precio">
+  <h2>¿Qué cambia si cobras otro precio?</h2>
+  <p>Costo por almuerzo en este ejemplo <strong>$3.294</strong></p>
+  <div class="viz-controls" role="group" aria-label="Prueba un precio de venta">
+    <button class="btn" type="button" data-price="3000" aria-pressed="false">$3.000</button>
+    <button class="btn" type="button" data-price="4000" aria-pressed="false">$4.000</button>
+    <button class="btn" type="button" data-price="5000" aria-pressed="true">$5.000</button>
+  </div>
+  <div class="precio-barra" aria-hidden="true"><span data-covered></span><span data-gap></span></div>
+  <div class="viz-row precio-resumen" aria-live="polite" aria-atomic="true">
+    <span><i data-dot-cost aria-hidden="true"></i> Costo cubierto <strong data-cost>$3.294</strong></span>
+    <span><i data-dot-gap aria-hidden="true"></i> <span data-label>Queda por almuerzo</span> <strong data-result>$1.706</strong></span>
+  </div>
+</section>
+<style>
+#prueba-precio .precio-barra {display:flex; height:26px; border-radius:6px; overflow:hidden; margin:16px 0 10px}
+#prueba-precio .precio-barra span {transition:width 240ms ease}
+#prueba-precio [data-covered] {width:65.88%; background:var(--viz-series-2)}
+#prueba-precio [data-gap] {width:34.12%; background:var(--viz-series-1)}
+#prueba-precio .precio-resumen {gap:8px 20px; justify-content:flex-start}
+#prueba-precio .precio-resumen i {display:inline-block; width:10px; height:10px; border-radius:50%}
+#prueba-precio [data-dot-cost] {background:var(--viz-series-2)}
+#prueba-precio [data-dot-gap] {background:var(--viz-series-1)}
+#prueba-precio[data-loss] :is([data-gap],[data-dot-gap]) {background:var(--destructive)}
+#prueba-precio strong {font-weight:500}
+@media(prefers-reduced-motion:reduce){#prueba-precio .precio-barra span {transition:none}}
+</style>
+<script>
+(() => {
+  const root = document.getElementById('prueba-precio');
+  const buttons = [...root.querySelectorAll('button[data-price]')];
+  const coveredBar = root.querySelector('[data-covered]');
+  const gapBar = root.querySelector('[data-gap]');
+  const costLabel = root.querySelector('[data-cost]');
+  const label = root.querySelector('[data-label]');
+  const result = root.querySelector('[data-result]');
+  const cost = 3294;
+  const pesos = new Intl.NumberFormat('es-CL', {style:'currency',currency:'CLP'});
+  buttons.forEach(button => {
+    button.addEventListener('click', () => {
+      const price = Number(button.dataset.price);
+      const difference = price - cost;
+      const covered = Math.min(cost, price);
+      const total = Math.max(cost, price);
+      root.toggleAttribute('data-loss', difference < 0);
+      coveredBar.style.width = (covered / total * 100) + '%';
+      gapBar.style.width = (Math.abs(difference) / total * 100) + '%';
+      costLabel.textContent = pesos.format(covered);
+      label.textContent = difference < 0 ? 'Falta para cubrir el costo' : 'Queda por almuerzo';
+      result.textContent = pesos.format(Math.abs(difference));
+      buttons.forEach(item => item.setAttribute('aria-pressed', String(item === button)));
+    });
+  });
+})();
+</script>
+
+</div>
+<div class="costeo-panel" id="costeo-panel-5" role="tabpanel" aria-labelledby="costeo-tab-5" hidden>
+<p>Elige qué parte del precio de venta quieres que quede después de cubrir los costos de la ficha.</p>
+<section id="margen-almuerzo">
+  <h2>¿Cuánto cobrar para dejar margen?</h2>
+  <p>El almuerzo cuesta <strong>$3.294</strong> con los costos del ejemplo.</p>
+  <div class="viz-controls" role="group" aria-label="Margen deseado sobre el precio de venta">
+    <button class="btn" type="button" data-margin="20" aria-pressed="true">Margen del 20 %</button>
+    <button class="btn" type="button" data-margin="30" aria-pressed="false">Margen del 30 %</button>
+    <button class="btn" type="button" data-margin="35" aria-pressed="false">Margen del 35 %</button>
+  </div>
+  <div aria-live="polite" aria-atomic="true">
+    <h3>Precio de venta sugerido <span class="tabular-nums" data-price>$4.118</span></h3>
+    <div class="reparto" aria-hidden="true"><span data-cost-bar></span><span data-margin-bar></span></div>
+    <div class="viz-row reparto-etiquetas">
+      <span><i data-cost-dot aria-hidden="true"></i> Cubre el costo <strong>$3.294</strong></span>
+      <span><i data-margin-dot aria-hidden="true"></i> Queda por porción <strong class="tabular-nums" data-balance>$824</strong></span>
+    </div>
+  </div>
+</section>
+<style>
+#margen-almuerzo h3 { margin-top:16px; }
+#margen-almuerzo .reparto { display:flex; height:26px; border-radius:6px; overflow:hidden; margin:12px 0 10px; }
+#margen-almuerzo .reparto span { transition:width 240ms ease; }
+#margen-almuerzo [data-cost-bar] { width:79.99%; }
+#margen-almuerzo [data-margin-bar] { width:20.01%; }
+#margen-almuerzo :is([data-cost-bar],[data-cost-dot]) { background:var(--viz-series-2); }
+#margen-almuerzo :is([data-margin-bar],[data-margin-dot]) { background:var(--viz-series-1); }
+#margen-almuerzo .reparto-etiquetas { gap:8px 20px; justify-content:flex-start; }
+#margen-almuerzo .reparto-etiquetas i { display:inline-block; width:10px; height:10px; border-radius:50%; }
+#margen-almuerzo strong { font-weight:500; }
+@media (prefers-reduced-motion:reduce) { #margen-almuerzo .reparto span { transition:none; } }
+</style>
+<script>
+(() => {
+  const root = document.getElementById('margen-almuerzo');
+  const buttons = [...root.querySelectorAll('button[data-margin]')];
+  const priceLabel = root.querySelector('[data-price]');
+  const balanceLabel = root.querySelector('[data-balance]');
+  const costBar = root.querySelector('[data-cost-bar]');
+  const marginBar = root.querySelector('[data-margin-bar]');
+  const cost = 3294;
+  const pesos = new Intl.NumberFormat('es-CL', {style:'currency', currency:'CLP'});
+
+  buttons.forEach(button => {
+    button.addEventListener('click', () => {
+      const margin = Number(button.dataset.margin);
+      const price = Math.ceil(cost * 100 / (100 - margin));
+      const balance = price - cost;
+      priceLabel.textContent = pesos.format(price);
+      balanceLabel.textContent = pesos.format(balance);
+      costBar.style.width = (cost / price * 100) + '%';
+      marginBar.style.width = (balance / price * 100) + '%';
+      buttons.forEach(item => item.setAttribute('aria-pressed', String(item === button)));
+    });
+  });
+})();
+</script>
+
+</div>
+<div class="costeo-panel" id="costeo-panel-6" role="tabpanel" aria-labelledby="costeo-tab-6" hidden>
+<h2>Empieza con un plato de tu menú</h2>
+<p>Elige un plato que vendas seguido. Anota los ingredientes que usas, cuánto pagas por ellos y cuántas porciones salen. Suma el envase, el trabajo y la parte de los gastos compartidos que corresponde a cada porción.</p>
+<p>Con ese costo a la vista, vuelve al precio que cobras hoy. <strong>¿Cuánto te queda por porción después de cubrir lo que gastas para prepararla y venderla?</strong></p>
+<p>Puedes partir con una hoja o una planilla sencilla. Guarda tu ficha y revísala cuando cambie el precio de un ingrediente o la cantidad que sirves.</p>
+</div>
+</article>
+<style>
+#guia-costeo .costeo-panel { margin-top:20px; }
+#guia-costeo .nav { flex-wrap:wrap; }
+</style>
+
+</main>
+<footer class="wrap footer"><span>© 2026 CS Consultoría</span><a href="index.html#contacto">Contacto</a></footer>
+<aside class="solvi-promo" aria-label="Publicidad de SOLVI Flow" data-solvi-promo hidden>
+  <button class="solvi-close" type="button" aria-label="Cerrar anuncio de SOLVI Flow" data-solvi-close>×</button>
+  <div><strong>SOLVI Flow</strong><span>Costeo, cotizaciones y calendario de eventos</span></div>
+  <a href="https://csepulveda1967-dev.github.io/centro-de-eventos/?centro=demo">Probar demo <span aria-hidden="true">↗</span></a>
+</aside>
+</body>
+</html>

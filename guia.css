@@ -1,0 +1,44 @@
+.guide-wrap { width: min(920px, calc(100% - 32px)); margin-block: clamp(28px, 6vw, 76px); }
+#guia-costeo {
+  --viz-series-1: #16664e;
+  --viz-series-2: #4977aa;
+  --viz-series-3: #d9a840;
+  --destructive: #ae3030;
+  --background: #fff;
+  --muted: #c3dbcf;
+}
+#guia-costeo h1 { font-size: clamp(2.05rem, 6vw, 4.35rem); max-width: 18ch; margin-bottom: 20px; }
+#guia-costeo h2 { font-size: clamp(1.4rem, 4vw, 2.1rem); margin-bottom: 14px; }
+#guia-costeo header p { max-width: 65ch; }
+#guia-costeo .nav, #guia-costeo .viz-controls { display: flex; flex-wrap: wrap; gap: 8px; }
+#guia-costeo .nav { margin-top: 24px; }
+#guia-costeo button {
+  font: inherit;
+  font-weight: 700;
+  line-height: 1.2;
+  min-height: 44px;
+  padding: 8px 12px;
+  border: 1px solid #a7c5b9;
+  border-radius: 8px;
+  background: #fff;
+  color: #123c32;
+  cursor: pointer;
+}
+#guia-costeo .plato button { padding-inline: 3px; }
+#guia-costeo button:is([aria-selected=true],[aria-pressed=true]) { color: #fff; background: #16664e; border-color: #16664e; }
+#guia-costeo button:focus-visible { outline: 3px solid #14805b; outline-offset: 2px; }
+#guia-costeo .costeo-panel {
+  border: 1px solid #dce5dc;
+  border-radius: 16px;
+  padding: clamp(16px, 4vw, 30px);
+  background: #fff;
+}
+#guia-costeo [hidden] { display: none !important; }
+#guia-costeo table { width: 100%; border-collapse: collapse; margin-block: 10px; }
+#guia-costeo :is(th,td) { border-bottom: 1px solid #dce5dc; text-align: left; padding: 7px 3px; }
+#guia-costeo .text-end { text-align: right; }
+#guia-costeo .text-small { font-size: .88rem; }
+#guia-costeo .text-muted { color: #4a6265; }
+#guia-costeo .price-sources { margin-top: 16px; font-size: .9rem; }
+#guia-costeo .price-sources summary { cursor: pointer; }
+#guia-costeo .price-sources p { margin: 8px 0; }
