@@ -33,7 +33,7 @@
 <button tabindex="-1" class="nav-link" id="costeo-tab-6" type="button" role="tab" aria-selected="false" aria-controls="costeo-panel-6">Conclusión</button>
 </div>
 <div class="costeo-panel" id="costeo-panel-1" role="tabpanel" aria-labelledby="costeo-tab-1">
-<p>Sigue los $5.000 desde que el cliente paga hasta que quedan cubiertos los costos. Este primer ejercicio usa números redondos para entender la idea.</p>
+<p>Sigue los $5.000 que paga el cliente por un almuerzo para llevar. En los pasos 2 y 3 verás de dónde salen los costos de este mismo plato.</p>
 <section id="costos-almuerzo">
   <h2>¿A dónde van los $5.000 de un almuerzo?</h2>
   <div class="viz-controls" role="group" aria-label="Momentos de la venta">
@@ -79,8 +79,8 @@
   const detail = root.querySelector('[data-detalle]');
   const steps = [
     { widths: [0, 0, 100], amount: '$5.000', concept: 'Precio de venta', detail: 'El cliente paga el almuerzo.' },
-    { widths: [40, 0, 60], amount: '$3.000', concept: 'Beneficio bruto', detail: 'Ya descontaste $2.000 por el pollo, el arroz, la ensalada y los condimentos.' },
-    { widths: [40, 46, 14], amount: '$700', concept: 'Beneficio neto', detail: 'Descontaste además $2.300 por el envase, el trabajo y la parte de gastos como el gas y el arriendo.' }
+    { widths: [26.28, 0, 73.72], amount: '$3.686', concept: 'Queda después de los ingredientes', detail: 'Los ingredientes de una porción cuestan $1.314.' },
+    { widths: [26.28, 39.60, 34.12], amount: '$1.706', concept: 'Queda después de los costos incluidos', detail: 'Además de los ingredientes, descontaste $1.980 por el envase, el trabajo, el gas y el arriendo. El costo total del ejemplo es $3.294.' }
   ];
   buttons.forEach((button, index) => {
     button.addEventListener('click', () => {
